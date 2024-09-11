@@ -7,7 +7,7 @@ from magic_pdf.libs.MakeContentConfig import MakeMode, DropMode
 from magic_pdf.rw.AbsReaderWriter import AbsReaderWriter
 from magic_pdf.libs.drop_reason import DropReason
 from magic_pdf.libs.json_compressor import JsonCompressor
-
+import fitz
 
 class AbsPipe(ABC):
     """
@@ -59,11 +59,12 @@ class AbsPipe(ABC):
         return md_content
 
     @staticmethod
-    def classify(pdf_bytes: bytes) -> str:
+    def classify(doc:fitz.Document) -> str:
         """
         根据pdf的元数据，判断是文本pdf，还是ocr pdf
         """
-        pdf_meta = pdf_meta_scan(pdf_bytes)
+        #doc = fitz.open("pdf", pdf_bytes)
+        pdf_meta = pdf_meta_scan(doc)
         if pdf_meta.get("_need_drop", False):  # 如果返回了需要丢弃的标志，则抛出异常
             raise Exception(f"pdf meta_scan need_drop,reason is {pdf_meta['_drop_reason']}")
         else:

@@ -304,22 +304,36 @@ def check_invalid_chars(pdf_bytes):
     """
     return detect_invalid_chars(pdf_bytes)
 
+import random
+import os
 
-def pdf_meta_scan(pdf_bytes: bytes):
+def __get_pdf_sample_count():
+    # 从环境变量中获取PDF_SAMPLE_CNT的值，如果未设置，则返回默认值10
+    return int(os.getenv('PDF_SAMPLE_CNT', 10))
+
+def __get_random_sublist(lst, length=10):
+    if len(lst) < length:
+        return lst  # 如果列表长度小于所需的子列表长度，返回空列表
+    start_index = random.randint(0, len(lst) - length)  # 确定一个随机的起始索引
+    return lst[start_index:start_index + length]  # 返回从起始索引开始的10个连续元素
+
+
+def pdf_meta_scan(doc_pdf: fitz.Document):
     """
     :param s3_pdf_path:
     :param pdf_bytes: pdf文件的二进制数据
     几个维度来评价：是否加密，是否需要密码，纸张大小，总页数，是否文字可提取
     """
-    doc = fitz.open("pdf", pdf_bytes)
-    is_needs_password = doc.needs_pass
-    is_encrypted = doc.is_encrypted
-    total_page = len(doc)
+    
+    is_needs_password = doc_pdf.needs_pass
+    is_encrypted = doc_pdf.is_encrypted
+    total_page = len(doc_pdf)
     if total_page == 0:
         logger.warning(f"drop this pdf, drop_reason: {DropReason.EMPTY_PDF}")
         result = {"_need_drop": True, "_drop_reason": DropReason.EMPTY_PDF}
         return result
     else:
+        doc = __get_random_sublist(doc_pdf, __get_pdf_sample_count()) # 每本书只随机选几页
         page_width_pts, page_height_pts = get_pdf_page_size_pts(doc)
         # logger.info(f"page_width_pts: {page_width_pts}, page_height_pts: {page_height_pts}")
 
@@ -336,7 +350,7 @@ def pdf_meta_scan(pdf_bytes: bytes):
         # logger.info(f"text_layout_per_page: {text_layout_per_page}")
         text_language = get_language(doc)
         # logger.info(f"text_language: {text_language}")
-        invalid_chars = check_invalid_chars(pdf_bytes)
+        invalid_chars = False #check_invalid_chars(pdf_bytes)
         # logger.info(f"invalid_chars: {invalid_chars}")
 
         # 最后输出一条json
