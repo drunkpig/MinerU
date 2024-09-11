@@ -37,3 +37,6 @@ ocr_demo
 source.dev.env
 
 tmp
+build
+dist
+magic_pdf.egg-info

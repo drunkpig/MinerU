@@ -350,14 +350,14 @@ def pdf_meta_scan(doc_pdf: fitz.Document):
         # logger.info(f"text_layout_per_page: {text_layout_per_page}")
         text_language = get_language(doc)
         # logger.info(f"text_language: {text_language}")
-        invalid_chars = False #check_invalid_chars(pdf_bytes)
+        invalid_chars = check_invalid_chars(doc_pdf)
         # logger.info(f"invalid_chars: {invalid_chars}")
 
         # 最后输出一条json
         res = {
             "is_needs_password": is_needs_password,
             "is_encrypted": is_encrypted,
-            "total_page": total_page,
+            "total_page": len(doc),
             "page_width_pts": int(page_width_pts),
             "page_height_pts": int(page_height_pts),
             "image_info_per_page": image_info_per_page,
@@ -368,7 +368,7 @@ def pdf_meta_scan(doc_pdf: fitz.Document):
             "imgs_per_page": imgs_per_page,  # 增加每页img数量list
             "junk_img_bojids": junk_img_bojids,  # 增加垃圾图片的bojid list
             "invalid_chars": invalid_chars,
-            "metadata": doc.metadata
+            #"metadata": doc.metadata
         }
         # logger.info(json.dumps(res, ensure_ascii=False))
         return res

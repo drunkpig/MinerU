@@ -84,9 +84,9 @@ class AbsPipe(ABC):
                     pdf_meta["invalid_chars"],
                 )
                 if is_text_pdf:
-                    return AbsPipe.PIP_TXT
+                    return AbsPipe.PIP_TXT, pdf_meta["invalid_chars"]
                 else:
-                    return AbsPipe.PIP_OCR
+                    return AbsPipe.PIP_OCR, pdf_meta["invalid_chars"]
 
     @staticmethod
     def mk_uni_format(compressed_pdf_mid_data: str, img_buket_path: str, drop_mode=DropMode.WHOLE_PDF) -> list:

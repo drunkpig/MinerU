@@ -14,8 +14,8 @@ def calculate_sample_count(total_page: int):
     return select_page_cnt
 
 
-def extract_pages(src_pdf_bytes: bytes):
-    pdf_docs = fitz.open("pdf", src_pdf_bytes)
+def extract_pages(pdf_docs):
+    # pdf_docs = fitz.open("pdf", src_pdf_bytes)
     total_page = len(pdf_docs)
     if total_page == 0:
         # 如果PDF没有页面，直接返回空文档
@@ -33,12 +33,12 @@ def extract_pages(src_pdf_bytes: bytes):
     return sample_docs
 
 
-def detect_invalid_chars(src_pdf_bytes: bytes) -> bool:
+def detect_invalid_chars(doc_pdf) -> bool:
     """"
     检测PDF中是否包含非法字符
     """
     '''pdfminer比较慢,需要先随机抽取10页左右的sample'''
-    sample_docs = extract_pages(src_pdf_bytes)
+    sample_docs = extract_pages(doc_pdf)
     sample_pdf_bytes = sample_docs.tobytes()
     sample_pdf_file_like_object = BytesIO(sample_pdf_bytes)
     text = extract_text(sample_pdf_file_like_object)

@@ -22,8 +22,22 @@ def remove_duplicates_dicts(lst):
             unique_dicts.append(dict_item)
     return unique_dicts
 
+import random
+import os
 
-def load_images_from_pdf(pdf_bytes: bytes, dpi=200) -> list:
+def __get_pdf_sample_count():
+    # 从环境变量中获取PDF_SAMPLE_CNT的值，如果未设置，则返回默认值10
+    return int(os.getenv('PDF_SAMPLE_CNT', 10))
+
+def __get_random_sublist(lst, length=10):
+    if len(lst) < length:
+        return lst  # 如果列表长度小于所需的子列表长度，返回空列表
+    start_index = random.randint(0, len(lst) - length)  # 确定一个随机的起始索引
+    return lst[start_index:start_index + length]  # 返回从起始索引开始的10个连续元素
+
+
+
+def load_images_from_pdf(doc, dpi=200) -> list:
     try:
         from PIL import Image
     except ImportError:
@@ -31,20 +45,20 @@ def load_images_from_pdf(pdf_bytes: bytes, dpi=200) -> list:
         exit(1)
 
     images = []
-    with fitz.open("pdf", pdf_bytes) as doc:
-        for index in range(0, doc.page_count):
-            page = doc[index]
-            mat = fitz.Matrix(dpi / 72, dpi / 72)
-            pm = page.get_pixmap(matrix=mat, alpha=False)
+    doc_pages = __get_random_sublist(doc, __get_pdf_sample_count())
+    for index in range(0, len(doc_pages)):
+        page = doc_pages[index]
+        mat = fitz.Matrix(dpi / 72, dpi / 72)
+        pm = page.get_pixmap(matrix=mat, alpha=False)
 
-            # If the width or height exceeds 9000 after scaling, do not scale further.
-            if pm.width > 9000 or pm.height > 9000:
-                pm = page.get_pixmap(matrix=fitz.Matrix(1, 1), alpha=False)
+        # If the width or height exceeds 9000 after scaling, do not scale further.
+        if pm.width > 9000 or pm.height > 9000:
+            pm = page.get_pixmap(matrix=fitz.Matrix(1, 1), alpha=False)
 
-            img = Image.frombytes("RGB", (pm.width, pm.height), pm.samples)
-            img = np.array(img)
-            img_dict = {"img": img, "width": pm.width, "height": pm.height}
-            images.append(img_dict)
+        img = Image.frombytes("RGB", (pm.width, pm.height), pm.samples)
+        img = np.array(img)
+        img_dict = {"img": img, "width": pm.width, "height": pm.height}
+        images.append(img_dict)
     return images
 
 
