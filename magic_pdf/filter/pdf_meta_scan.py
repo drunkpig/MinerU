@@ -298,11 +298,11 @@ def get_language(doc: fitz.Document):
     return language
 
 
-def check_invalid_chars(pdf_bytes):
+def check_invalid_chars(doc_pdf):
     """
     乱码检测
     """
-    return detect_invalid_chars(pdf_bytes)
+    return detect_invalid_chars(doc_pdf)
 
 import random
 import os
